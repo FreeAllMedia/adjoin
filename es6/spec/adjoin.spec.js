@@ -1,4 +1,4 @@
-import adjoin from "../aspect.js";
+import adjoin from "../lib/adjoin.js";
 
 const sinon = require("sinon");
 
