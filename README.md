@@ -2,78 +2,50 @@
 
 Quality-controlled component for adjoining one function to another in an Aspect-Oriented style.
 
-## before
+```javascript
+// ES6
+import adjoin from "adjoin";
 
-Return an `adjoinedFunction` that first calls `beforeFunction`, then calls `originalFunction` with the supplied arguments.
+/**
+ * Start with an empty context to exemplify
+ */
+let context = {};
 
-``` javascript
+/**
+ * Start with a function that accepts zero or more arguments
+ */
+function originalFunction(argOne, argTwo) {
+	this.original = argOne;
+	// this.both was already set in beforeFunction
+	this.both = this.both + argTwo;
+}
+
+/**
+ * Create another function with the same
+ * arguments and optional callback.
+ */
+function beforeFunction(argOne, argTwo) {
+	this.before = argOne + 10;
+	this.both = argOne + argTwo;
+}
+
+/**
+ * Adjoin functions together into a new function
+ */
 const adjoinedFunction = adjoin.before(
 	originalFunction,
 	beforeFunction,
 	context
 );
-```
 
-**Synchronous Example**
+/**
+ * The adjoined function calls both functions
+ * in the correct order, with the specified
+ * arguments and context.
+ */
+adjoinedFunction(100, 200);
 
-``` javascript
-// var adjoin = require("adjoin")
-import adjoin from "adjoin";
-
-function beforeFunction(argument) {
-  this.before = argument; // `this` is set to the provided context
-}
-
-function afterFunction(argument) {
-	 this.after = argument; // `this` is set to the provided context
-}
-
-const context = {
-	before: false,
-	after: false
-};
-
-const adjoinedFunction = adjoin.before(
-	afterFunction,
-	beforeFunction,
-	context
-);
-
-adjoinedFunction(true); // Argument is passed to both functions
-
-context.before; // true
-context.after; // true
-```
-
-**Asynchronous Example**
-
-``` javascript
-// var adjoin = require("adjoin")
-import adjoin from "adjoin";
-
-function beforeFunction(argument, done) {
-  this.before = argument; // `this` is set to the provided context
-  done();
-}
-
-function afterFunction(argument, done) {
-	 this.after = argument; // `this` is set to the provided context
-	 done();
-}
-
-const context = {
-	before: false,
-	after: false
-};
-
-const adjoinedFunction = adjoin.before(afterFunction, beforeFunction, context);
-
-adjoinedFunction(true, () => {
-	
-});
-
-context.before; // true
-context.after; // true
+console.log(context); // {original:100, before:110, both:500}
 ```
 
 # Quality and Compatibility
@@ -126,13 +98,224 @@ define(["require"] , function (require) {
 
 # Getting Started
 
-## More insights
+Adjoin.js takes two functions and *adjoins* then together to form a new function that calls both with the same arguments, in order.
 
-In order to say something, you should know that `adjoin()` ... (add your test here)
+There are currently two ways to adjoin one function to another:
+
+* `adjoin.before(originalFunction, beforeFunction, [context])`
+* `adjoin.after(originalFunction, afterFunction, [context])`
+
+Both methods support asynchronous functions, and node-style asynchronous functions with a callback as the last argument.
+
+## adjoin.before()
+
+Return an `adjoinedFunction` that first calls `beforeFunction`, then calls `originalFunction` with the supplied arguments. Synchronous and node-style asynchronous functions are supported.
+
+**Synchronous Example:**
+
+```javascript
+// ES6
+import adjoin from "adjoin";
+
+/**
+ * Start with an empty context to exemplify
+ */
+let context = {};
+
+/**
+ * Start with a function that accepts zero or more arguments
+ */
+function originalFunction(argOne, argTwo) {
+	this.original = argOne;
+	// this.both was already set in beforeFunction
+	this.both = this.both + argTwo;
+}
+
+/**
+ * Create another function with the same
+ * arguments and optional callback.
+ */
+function beforeFunction(argOne, argTwo) {
+	this.before = argOne + 10;
+	this.both = argOne + argTwo;
+}
+
+/**
+ * Adjoin functions together into a new function
+ */
+const adjoinedFunction = adjoin.before(
+	originalFunction,
+	beforeFunction,
+	context
+);
+
+/**
+ * The adjoined function calls both functions
+ * in the correct order, with the specified
+ * arguments and context.
+ */
+adjoinedFunction(100, 200);
+
+console.log(context); // {original:100, before:110, both:500}
+```
+
+**Node-style asynchronous Example:**
+
+``` javascript
+// ES6
+import adjoin from "adjoin";
+
+/**
+ * Start with an empty context to exemplify
+ */
+let context = {};
+
+/**
+ * Start with a function that accepts zero or 
+ * more arguments, and optionally a callback
+ */
+function originalFunction(argOne, argTwo, callback) {
+	this.original = argOne;
+	this.both = argOne + argTwo;
+	callback();
+}
+
+/**
+ * Create another function with the same
+ * arguments and optional callback.
+ */
+function beforeFunction(argOne, argTwo, callback) {
+	this.before = argOne + 10;
+	// this.both was already set in originalFunction
+	this.both = this.both + argTwo;
+	callback();
+}
+
+/**
+ * Adjoin functions together into a new function
+ */
+const adjoinedFunction = adjoin.before(
+	originalFunction,
+	beforeFunction,
+	context
+);
+
+/**
+ * The adjoined function calls both functions
+ * in the correct order, with the specified
+ * arguments and context.
+ */
+adjoinedFunction(100, 200, () => {
+	console.log(context); // {original:100, before:110, both:500}
+});
+```
+
+## adjoin.after()
+
+Return an `adjoinedFunction` that first calls `originalFunction`, then calls `afterFunction` with the supplied arguments. Synchronous and node-style asynchronous functions are supported.
+
+**Synchronous Example:**
+
+```javascript
+// ES6
+import adjoin from "adjoin";
+
+/**
+ * Start with an empty context to exemplify
+ */
+let context = {};
+
+/**
+ * Start with a function that accepts zero or more arguments
+ */
+function originalFunction(argOne, argTwo) {
+	this.original = argOne;
+	this.both = argOne + argTwo;
+}
+
+/**
+ * Create another function with the same
+ * arguments and optional callback.
+ */
+function afterFunction(argOne, argTwo) {
+	this.after = argOne + 10;
+	// this.both was already set in originalFunction
+	this.both = this.both + argTwo;
+}
+
+/**
+ * Adjoin functions together into a new function
+ */
+const adjoinedFunction = adjoin.after(
+	originalFunction,
+	afterFunction,
+	context
+);
+
+/**
+ * The adjoined function calls both functions
+ * in the correct order, with the specified
+ * arguments and context.
+ */
+adjoinedFunction(100, 200);
+
+console.log(context); // {original:100, after:110, both:500}
+```
+
+**Node-style asynchronous Example:**
+
+``` javascript
+// ES6
+import adjoin from "adjoin";
+
+/**
+ * Start with an empty context to exemplify
+ */
+let context = {};
+
+/**
+ * Start with a function that accepts zero or 
+ * more arguments, and optionally a callback
+ */
+function originalFunction(argOne, argTwo, callback) {
+	this.original = argOne;
+	this.both = argOne + argTwo;
+	callback();
+}
+
+/**
+ * Create another function with the same
+ * arguments and optional callback.
+ */
+function afterFunction(argOne, argTwo, callback) {
+	this.after = argOne + 10;
+	// this.both was already set in originalFunction
+	this.both = this.both + argTwo;
+	callback();
+}
+
+/**
+ * Adjoin functions together into a new function
+ */
+const adjoinedFunction = adjoin.after(
+	originalFunction,
+	afterFunction,
+	context
+);
+
+/**
+ * The adjoined function calls both functions
+ * in the correct order, with the specified
+ * arguments and context.
+ */
+adjoinedFunction(100, 200, () => {
+	console.log(context); // {original:100, after:110, both:500}
+});
+```
 
 # How to Contribute
 
-See something that could use improvement? Have a great feature idea? We listen!
+See something that could use improvement? Have a great feature idea?
 
 You can submit your ideas through our [issues system](https://github.com/FreeAllMedia/adjoin/issues), or make the modifications yourself and submit them to us in the form of a [GitHub pull request](https://help.github.com/articles/using-pull-requests/).
 
@@ -145,18 +328,3 @@ It's easy to run the test suite locally, and *highly recommended* if you're usin
 ```
 npm test
 ```
-
-
-### SauceLabs Credentials
-
-We've setup our tests to automatically detect whether or not you have our saucelabs credentials installed in your environment (`process.env.SAUCE_USERNAME`).
-
-If our saucelabs credentials are not installed, the tests are setup to automatically detect all browsers you have installed on your local system, then use them to run the tests.
-
-#### Obtaining Our SauceLabs Credentials
-
-If you'd like to develop Adjoin.js using SauceLabs, you need only create a new entry in our [issue tracker](https://github.com/FreeAllMedia/adjoin/issues) asking for our SauceLabs credentials.
-
-We'll send over all credentials specific to this project so that you can perform comprehensive cross-platform tests.
-
-

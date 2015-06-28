@@ -1,6 +1,6 @@
 {
   "name": "adjoin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ES6 component for adjoining one function to another in an Aspect-Oriented style",
   "main": "index.js",
   "scripts": {
